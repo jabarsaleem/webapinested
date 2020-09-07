@@ -9,7 +9,15 @@ var usersRouter = require('./routes/users');
 
 var DishRouter= require('./routes/DishRouter');
 
+var PromoRouter=require('./routes/promorouter');
+var LeaderRouter=require('./routes/leaderrouter');
+
 var dishes= require('../webapinested/models/dishes');
+
+var promos=require('../webapinested/models/promos');
+
+var leaders=require('../webapinested/models/leaders');
+
 const mongoose = require('mongoose');
 
 const Dishes = require('./models/dishes');
@@ -37,6 +45,11 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 app.use('/dishes', DishRouter);
+
+app.use('/promos',PromoRouter);
+app.use('/leaders',LeaderRouter);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

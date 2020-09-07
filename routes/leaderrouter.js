@@ -2,22 +2,28 @@ const express = require('express');
 
 const bodyparser = require('body-parser');
 
-const leaderrouter = express.Router();
 
-leaderrouter.use(bodyparser.json());
+const mongoose = require('mongoose');
 
-leaderrouter.route('/')
-    .all( (req, res, next) => {
+const Leaders = require('../models/leaders');
+const { findById } = require('../models/leaders');
 
-        res.statusCode = 200;
-        res.setHeader("content-type", "text/plain");
-        next();
-    })
+const LeaderRouter = express.Router();
 
-    .get( (req, res, next) => {
+LeaderRouter.use(bodyparser.json());
+
+LeaderRouter.route('/')
 
 
-        res.end("it will show all details of leaders");
+    .get((req, res, next) => {
+        Leaders.find({})
+            .then((leaders) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(leaders);
+
+            }, (err) => next(err))
+            .catch((err) => next(err));
 
     })
 
@@ -27,47 +33,71 @@ leaderrouter.route('/')
         res.end("this operation is invaild");
 
     })
-    .post( (req, res, next) => {
+    .post((req, res, next) => {
+        Leaders.create(req.body)
+            .then((leader) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(leader);
 
+            }, (err) => next(err))
+            .catch((err) => next(err));
 
-        res.end("it will add a leader with name " + req.body.name + " and his/her details are" + req.body.details);
 
     })
 
     .delete((req, res, next) => {
 
+        Leaders.remove({})
+            .then((resp) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(resp);
 
-        res.end("it will delete all details of leaders");
+            }, (err) => next(err))
+            .catch((err) => next(err));
 
     });
+LeaderRouter.route('/:leaderid')
 
-    
-
-    leaderrouter.route('/:ltid')
     .get((req, res, next) => {
 
+        Leaders.findById(req.params.leaderid).then((leader) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(leader);
 
-        res.end("it will show details of the leader with ID numbder " + req.params.ltid);
-    
+        }, (err) => next(err))
+            .catch((err) => next(err));
     })
-    
-    .delete((req,res,next)=>{
-    res.end("it will delete a leader with ID number "+ req.params.ltid);
+
+    .delete((req, res, next) => {
+        Leaders.findByIdAndRemove(req.params.leaderid).then((reps) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(reps);
+
+        }, (err) => next(err))
+            .catch((err) => next(err));
     })
-    
+
     .post((req, res, next) => {
-    
+
         res.statusCode = 403;
         res.end("this operation is invaild");
-    
+
     })
     .put((req, res, next) => {
-    
-    
-        res.write("update the leader with ID " + req.params.ltid);
-        res.end("updated the leader with name " + req.body.name + "and the new details are " + req.body.details);
+
+        Leaders.findByIdAndUpdate(req.params.leaderid, { $set: req.body }, { new: true }).then((leader) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(leader);
+
+        }, (err) => next(err))
+            .catch((err) => next(err));
     });
-    
 
 
-module.exports = leaderrouter;
+
+module.exports = LeaderRouter;
